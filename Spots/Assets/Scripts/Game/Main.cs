@@ -1,18 +1,20 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class Main : MonoBehaviour {
 
     private const int MAX_SIZE = 4;
-    private const float START_POSITION = 150f;
-    private const float BIAS_POSITION = 100f;
+    private const float START_POSITION = 225f;
+    private const float BIAS_POSITION = 150f;
 
-    public GameObject spot;
     private Vector3[,] _positions;
     private GameObject[,] _spots;
+
+    [SerializeField]
+    private GameObject spot, panel;
+    [SerializeField]
+    private Text param;
 
     private float _posX, _posY;
 
@@ -56,7 +58,6 @@ public class Main : MonoBehaviour {
                     _spots[i, j].GetComponentInChildren<Text>().text = (numbers[inc] + 1).ToString();
                     _spots[i, j].AddComponent<Spot>();
                     inc++;
-                    print(_spots[i, j].name);
                 }
                 
                 _posX += BIAS_POSITION;
@@ -113,6 +114,7 @@ public class Main : MonoBehaviour {
 
                 if (isMove)
                 {
+                    CheckIfGameFinish();
                     isMove = false;
                     return;
                 }
@@ -141,6 +143,7 @@ public class Main : MonoBehaviour {
 
                 if (isMove)
                 {
+                    CheckIfGameFinish();
                     isMove = false;
                     return;
                 }
@@ -170,6 +173,7 @@ public class Main : MonoBehaviour {
 
                 if (isMove)
                 {
+                    CheckIfGameFinish();
                     isMove = false;
                     return;
                 }
@@ -198,6 +202,7 @@ public class Main : MonoBehaviour {
 
                 if (isMove)
                 {
+                    CheckIfGameFinish();
                     isMove = false;
                     return;
                 }
@@ -208,11 +213,6 @@ public class Main : MonoBehaviour {
         return;
     }
 
-    private void Update()
-    {
-        
-    }
-
     private bool CheckPlayability()
     {
         return true;
@@ -220,9 +220,71 @@ public class Main : MonoBehaviour {
 
     private void DestroyAllSPots()
     {
+        for (int i = 0; i < MAX_SIZE; i++)
+        {
+            for (int j = 0; j < MAX_SIZE; j++)
+            {
+                if(_spots[i,j] != null)
+                Destroy(_spots[i, j]);
+            }
+        }
+    }
+
+    private void CheckIfGameFinish()
+    {
+        int inc = 1;
+        int temp = 0;
+
         foreach (GameObject item in _spots)
         {
-            Destroy(item);
+            if(item != null)
+            temp = int.Parse(item.GetComponentInChildren<Text>().text);
+
+            if (temp == inc)
+            {
+                inc++;
+                print(inc);
+            }
+            else if (inc > MAX_SIZE * MAX_SIZE - 1)
+            {
+                Finish();
+                break;
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+
+    private void Finish()
+    {
+        DestroyAllSPots();
+        panel.SetActive(true);
+    }
+
+    private void Update()
+    {
+        switch (param.text)
+        {
+            case "1":
+                Finish();
+                param.text = "";
+                break;
+            case "2":
+
+                param.text = "";
+                break;
+            default:
+                break;
+        }
+
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                Application.Quit();
+            }
         }
     }
 }
